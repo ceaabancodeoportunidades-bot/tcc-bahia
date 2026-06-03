@@ -8,7 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Search, FileText } from "lucide-react";
+import { Download, Search, FileText, Clock } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -28,6 +30,8 @@ function Index() {
   const [q, setQ] = useState("");
   const [year, setYear] = useState<string>("all");
   const [area, setArea] = useState<string>("all");
+  const [tab, setTab] = useState<"all" | "recent">("all");
+  const [selected, setSelected] = useState<any | null>(null);
 
   const { data: tccs = [], isLoading } = useQuery({
     queryKey: ["tccs", "approved"],
@@ -56,6 +60,16 @@ function Index() {
     return true;
   });
 
+  const recent = useMemo(() => {
+    const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    return [...tccs]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .filter((t) => new Date(t.created_at).getTime() >= cutoff)
+      .slice(0, 12);
+  }, [tccs]);
+
+  const visible = tab === "recent" ? recent : filtered;
+
   const downloadPdf = async (path: string) => {
     const { data, error } = await supabase.storage.from("tcc-pdfs").createSignedUrl(path, 60);
     if (error || !data) return;
@@ -71,6 +85,14 @@ function Index() {
           <p className="text-muted-foreground text-lg">{tr("home.subtitle")}</p>
         </section>
 
+        <Tabs value={tab} onValueChange={(v) => setTab(v as "all" | "recent")} className="mb-6">
+          <TabsList>
+            <TabsTrigger value="all"><FileText className="h-4 w-4 mr-1" />{tr("home.tabs.all")}</TabsTrigger>
+            <TabsTrigger value="recent"><Clock className="h-4 w-4 mr-1" />{tr("home.tabs.recent")}</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {tab === "all" && (
         <div className="flex flex-col md:flex-row gap-3 mb-8">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -91,18 +113,23 @@ function Index() {
             </SelectContent>
           </Select>
         </div>
+        )}
 
         {isLoading ? (
           <p className="text-center text-muted-foreground py-12">{tr("home.loading")}</p>
-        ) : filtered.length === 0 ? (
+        ) : visible.length === 0 ? (
           <div className="text-center py-16">
             <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
             <p className="text-muted-foreground">{tr("home.empty")}</p>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((t) => (
-              <Card key={t.id} className="flex flex-col">
+            {visible.map((t) => (
+              <Card
+                key={t.id}
+                className="flex flex-col cursor-pointer transition-colors hover:border-primary/50 hover:bg-accent/30"
+                onClick={() => setSelected(t)}
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <Badge variant="secondary">{t.year}</Badge>
@@ -113,17 +140,53 @@ function Index() {
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col">
                   <p className="text-sm text-muted-foreground line-clamp-5 flex-1">{t.abstract}</p>
-                  {t.pdf_path && (
-                    <Button variant="outline" size="sm" className="mt-4 w-fit" onClick={() => downloadPdf(t.pdf_path!)}>
-                      <Download className="h-4 w-4 mr-1" /> {tr("home.download")}
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); setSelected(t); }}>
+                      {tr("home.readMore")}
                     </Button>
-                  )}
+                    {t.pdf_path && (
+                      <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); downloadPdf(t.pdf_path!); }}>
+                        <Download className="h-4 w-4 mr-1" /> {tr("home.download")}
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
       </main>
+
+      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          {selected && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant="secondary">{selected.year}</Badge>
+                  {selected.area && <Badge variant="outline">{selected.area}</Badge>}
+                </div>
+                <DialogTitle className="text-2xl leading-tight">{selected.title}</DialogTitle>
+                <DialogDescription>
+                  {tr("home.by")} {selected.authors}
+                  {selected.advisor ? ` · ${tr("home.advisorShort")}: ${selected.advisor}` : ""}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="text-sm whitespace-pre-wrap leading-relaxed text-foreground/90 mt-2">
+                {selected.abstract}
+              </div>
+              <DialogFooter className="gap-2 sm:gap-2">
+                {selected.pdf_path && (
+                  <Button variant="outline" onClick={() => downloadPdf(selected.pdf_path!)}>
+                    <Download className="h-4 w-4 mr-1" /> {tr("home.download")}
+                  </Button>
+                )}
+                <Button onClick={() => setSelected(null)}>{tr("home.close")}</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
