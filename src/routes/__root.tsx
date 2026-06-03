@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { I18nProvider } from "@/lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -79,16 +80,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "TCC Repository Hub stores high school TCCs, abstracts, and manages user access for students and administrators." },
+      { title: "Ceaa tcc" },
+      { name: "description", content: "Ceaa tcc — high school capstone (TCC) repository. Students submit, teachers approve, everyone browses." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "TCC Repository Hub stores high school TCCs, abstracts, and manages user access for students and administrators." },
+      { property: "og:title", content: "Ceaa tcc" },
+      { property: "og:description", content: "Ceaa tcc — high school capstone (TCC) repository." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
-      { name: "twitter:description", content: "TCC Repository Hub stores high school TCCs, abstracts, and manages user access for students and administrators." },
+      { name: "twitter:title", content: "Ceaa tcc" },
+      { name: "twitter:description", content: "Ceaa tcc — high school capstone (TCC) repository." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/92cd46ec-5a78-4666-bf61-5729b5d52fb8/id-preview-3ade7f5e--b5c61d11-5e95-4a7e-b37f-6471da9be3d2.lovable.app-1780509832084.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/92cd46ec-5a78-4666-bf61-5729b5d52fb8/id-preview-3ade7f5e--b5c61d11-5e95-4a7e-b37f-6471da9be3d2.lovable.app-1780509832084.png" },
     ],
@@ -131,8 +132,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <Toaster richColors position="top-right" />
+      <I18nProvider>
+        <Outlet />
+        <Toaster richColors position="top-right" />
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

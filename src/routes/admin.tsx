@@ -9,13 +9,15 @@ import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { toast } from "sonner";
 import { Check, X, Trash2 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin — Acervo de TCCs" }] }),
+  head: () => ({ meta: [{ title: "Admin — Ceaa tcc" }] }),
   component: AdminPage,
 });
 
 function AdminPage() {
+  const { t: tr } = useI18n();
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -37,15 +39,15 @@ function AdminPage() {
   const setStatus = async (id: string, status: "approved" | "rejected" | "pending") => {
     const { error } = await supabase.from("tccs").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Atualizado");
+    toast.success(tr("admin.updated"));
     qc.invalidateQueries({ queryKey: ["tccs"] });
   };
 
   const del = async (id: string) => {
-    if (!confirm("Excluir este TCC?")) return;
+    if (!confirm(tr("admin.confirmDelete"))) return;
     const { error } = await supabase.from("tccs").delete().eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Excluído");
+    toast.success(tr("admin.deleted"));
     qc.invalidateQueries({ queryKey: ["tccs"] });
   };
 
@@ -54,15 +56,15 @@ function AdminPage() {
   const statusVariant = (s: string) =>
     s === "approved" ? "default" : s === "rejected" ? "destructive" : "secondary";
   const statusLabel = (s: string) =>
-    s === "approved" ? "Aprovado" : s === "rejected" ? "Rejeitado" : "Pendente";
+    s === "approved" ? tr("admin.status.approved") : s === "rejected" ? tr("admin.status.rejected") : tr("admin.status.pending");
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="container mx-auto px-4 py-10">
-        <h1 className="text-3xl font-bold mb-6">Painel do Professor</h1>
+        <h1 className="text-3xl font-bold mb-6">{tr("admin.title")}</h1>
         <div className="space-y-3">
-          {tccs.length === 0 && <p className="text-muted-foreground">Nenhum TCC enviado ainda.</p>}
+          {tccs.length === 0 && <p className="text-muted-foreground">{tr("admin.empty")}</p>}
           {tccs.map((t) => (
             <Card key={t.id}>
               <CardHeader>
@@ -80,12 +82,12 @@ function AdminPage() {
                 <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{t.abstract}</p>
                 <div className="flex flex-wrap gap-2">
                   {t.status !== "approved" && (
-                    <Button size="sm" onClick={() => setStatus(t.id, "approved")}><Check className="h-4 w-4 mr-1" />Aprovar</Button>
+                    <Button size="sm" onClick={() => setStatus(t.id, "approved")}><Check className="h-4 w-4 mr-1" />{tr("admin.approve")}</Button>
                   )}
                   {t.status !== "rejected" && (
-                    <Button size="sm" variant="outline" onClick={() => setStatus(t.id, "rejected")}><X className="h-4 w-4 mr-1" />Rejeitar</Button>
+                    <Button size="sm" variant="outline" onClick={() => setStatus(t.id, "rejected")}><X className="h-4 w-4 mr-1" />{tr("admin.reject")}</Button>
                   )}
-                  <Button size="sm" variant="destructive" onClick={() => del(t.id)}><Trash2 className="h-4 w-4 mr-1" />Excluir</Button>
+                  <Button size="sm" variant="destructive" onClick={() => del(t.id)}><Trash2 className="h-4 w-4 mr-1" />{tr("admin.delete")}</Button>
                 </div>
               </CardContent>
             </Card>
