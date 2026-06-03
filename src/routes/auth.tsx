@@ -9,13 +9,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SiteHeader } from "@/components/site-header";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Entrar — Acervo de TCCs" }] }),
+  head: () => ({ meta: [{ title: "Entrar — Ceaa tcc" }] }),
   component: AuthPage,
 });
 
 function AuthPage() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [email, setEmail] = useState("");
@@ -33,7 +35,7 @@ function AuthPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) toast.error(error.message);
-    else { toast.success("Bem-vindo!"); navigate({ to: "/" }); }
+    else { toast.success(t("auth.welcome")); navigate({ to: "/" }); }
   };
 
   const signUp = async (e: React.FormEvent) => {
@@ -48,7 +50,7 @@ function AuthPage() {
     });
     setLoading(false);
     if (error) toast.error(error.message);
-    else { toast.success("Conta criada! Você já pode entrar."); }
+    else { toast.success(t("auth.created")); }
   };
 
   return (
@@ -57,29 +59,29 @@ function AuthPage() {
       <main className="container mx-auto px-4 py-16 flex justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Acesso</CardTitle>
-            <CardDescription>Entre como aluno ou professor.</CardDescription>
+            <CardTitle>{t("auth.cardTitle")}</CardTitle>
+            <CardDescription>{t("auth.cardDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin">
               <TabsList className="grid grid-cols-2 mb-4 w-full">
-                <TabsTrigger value="signin">Entrar</TabsTrigger>
-                <TabsTrigger value="signup">Cadastrar (aluno)</TabsTrigger>
+                <TabsTrigger value="signin">{t("auth.signin")}</TabsTrigger>
+                <TabsTrigger value="signup">{t("auth.signup")}</TabsTrigger>
               </TabsList>
               <TabsContent value="signin">
                 <form onSubmit={signIn} className="space-y-3">
-                  <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-                  <div><Label>Senha</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-                  <Button type="submit" className="w-full" disabled={loading}>Entrar</Button>
+                  <div><Label>{t("auth.email")}</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
+                  <div><Label>{t("auth.password")}</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
+                  <Button type="submit" className="w-full" disabled={loading}>{t("auth.signin")}</Button>
                 </form>
               </TabsContent>
               <TabsContent value="signup">
                 <form onSubmit={signUp} className="space-y-3">
-                  <div><Label>Nome completo</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} required /></div>
-                  <div><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-                  <div><Label>Senha</Label><Input type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-                  <Button type="submit" className="w-full" disabled={loading}>Criar conta</Button>
-                  <p className="text-xs text-muted-foreground">Contas de professor são criadas pelo administrador.</p>
+                  <div><Label>{t("auth.fullName")}</Label><Input value={fullName} onChange={(e) => setFullName(e.target.value)} required /></div>
+                  <div><Label>{t("auth.email")}</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
+                  <div><Label>{t("auth.password")}</Label><Input type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
+                  <Button type="submit" className="w-full" disabled={loading}>{t("auth.create")}</Button>
+                  <p className="text-xs text-muted-foreground">{t("auth.teacherNote")}</p>
                 </form>
               </TabsContent>
             </Tabs>
