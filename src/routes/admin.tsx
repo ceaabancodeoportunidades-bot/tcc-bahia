@@ -1,0 +1,97 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { SiteHeader } from "@/components/site-header";
+import { toast } from "sonner";
+import { Check, X, Trash2 } from "lucide-react";
+
+export const Route = createFileRoute("/admin")({
+  head: () => ({ meta: [{ title: "Admin — Acervo de TCCs" }] }),
+  component: AdminPage,
+});
+
+function AdminPage() {
+  const { user, isAdmin, loading } = useAuth();
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    if (!loading && (!user || !isAdmin)) navigate({ to: "/" });
+  }, [user, isAdmin, loading, navigate]);
+
+  const { data: tccs = [] } = useQuery({
+    queryKey: ["tccs", "admin"],
+    enabled: !!user && isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("tccs").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const setStatus = async (id: string, status: "approved" | "rejected" | "pending") => {
+    const { error } = await supabase.from("tccs").update({ status }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Atualizado");
+    qc.invalidateQueries({ queryKey: ["tccs"] });
+  };
+
+  const del = async (id: string) => {
+    if (!confirm("Excluir este TCC?")) return;
+    const { error } = await supabase.from("tccs").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Excluído");
+    qc.invalidateQueries({ queryKey: ["tccs"] });
+  };
+
+  if (loading || !user || !isAdmin) return null;
+
+  const statusVariant = (s: string) =>
+    s === "approved" ? "default" : s === "rejected" ? "destructive" : "secondary";
+  const statusLabel = (s: string) =>
+    s === "approved" ? "Aprovado" : s === "rejected" ? "Rejeitado" : "Pendente";
+
+  return (
+    <div className="min-h-screen bg-background">
+      <SiteHeader />
+      <main className="container mx-auto px-4 py-10">
+        <h1 className="text-3xl font-bold mb-6">Painel do Professor</h1>
+        <div className="space-y-3">
+          {tccs.length === 0 && <p className="text-muted-foreground">Nenhum TCC enviado ainda.</p>}
+          {tccs.map((t) => (
+            <Card key={t.id}>
+              <CardHeader>
+                <div className="flex items-start justify-between gap-2 flex-wrap">
+                  <div>
+                    <CardTitle className="text-lg">{t.title}</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t.year} · {t.authors}{t.area ? ` · ${t.area}` : ""}
+                    </p>
+                  </div>
+                  <Badge variant={statusVariant(t.status)}>{statusLabel(t.status)}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{t.abstract}</p>
+                <div className="flex flex-wrap gap-2">
+                  {t.status !== "approved" && (
+                    <Button size="sm" onClick={() => setStatus(t.id, "approved")}><Check className="h-4 w-4 mr-1" />Aprovar</Button>
+                  )}
+                  {t.status !== "rejected" && (
+                    <Button size="sm" variant="outline" onClick={() => setStatus(t.id, "rejected")}><X className="h-4 w-4 mr-1" />Rejeitar</Button>
+                  )}
+                  <Button size="sm" variant="destructive" onClick={() => del(t.id)}><Trash2 className="h-4 w-4 mr-1" />Excluir</Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}
