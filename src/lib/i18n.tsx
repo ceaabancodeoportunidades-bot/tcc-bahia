@@ -26,6 +26,11 @@ const dict = {
   "home.by": { pt: "por", en: "by" },
   "home.advisorShort": { pt: "orient.", en: "advisor" },
   "home.download": { pt: "Baixar PDF", en: "Download PDF" },
+  "home.readMore": { pt: "Ler resumo", en: "Read abstract" },
+  "home.tabs.all": { pt: "Todos", en: "All" },
+  "home.tabs.recent": { pt: "Recentes", en: "Recent" },
+  "home.close": { pt: "Fechar", en: "Close" },
+  "theme.toggle": { pt: "Alternar tema", en: "Toggle theme" },
   "home.metaTitle": { pt: "Ceaa tcc — Acervo de TCCs do Ensino Médio", en: "Ceaa tcc — High School TCC Archive" },
   "home.metaDesc": {
     pt: "Banco de trabalhos de conclusão de curso (TCC) do ensino médio. Explore resumos por ano, área e autor.",
