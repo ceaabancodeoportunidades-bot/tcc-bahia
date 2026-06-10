@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SiteHeader } from "@/components/site-header";
 import { toast } from "sonner";
-import { Check, X, Trash2 } from "lucide-react";
+import { Check, X, Trash2, Star } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/admin")({
@@ -18,17 +18,17 @@ export const Route = createFileRoute("/admin")({
 
 function AdminPage() {
   const { t: tr } = useI18n();
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin, isTeacher, loading } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) navigate({ to: "/" });
-  }, [user, isAdmin, loading, navigate]);
+    if (!loading && (!user || !(isAdmin || isTeacher))) navigate({ to: "/" });
+  }, [user, isAdmin, isTeacher, loading, navigate]);
 
   const { data: tccs = [] } = useQuery({
     queryKey: ["tccs", "admin"],
-    enabled: !!user && isAdmin,
+    enabled: !!user && (isAdmin || isTeacher),
     queryFn: async () => {
       const { data, error } = await supabase.from("tccs").select("*").order("created_at", { ascending: false });
       if (error) throw error;
@@ -57,7 +57,17 @@ function AdminPage() {
     qc.invalidateQueries({ queryKey: ["tccs"] });
   };
 
-  if (loading || !user || !isAdmin) return null;
+  const toggleRecommend = async (id: string, current: boolean) => {
+    const { error } = await supabase.from("tccs").update({ recommended: !current }).eq("id", id);
+    if (error) {
+      console.error("recommend error", error);
+      return toast.error(tr("error.generic"));
+    }
+    toast.success(tr("admin.updated"));
+    qc.invalidateQueries({ queryKey: ["tccs"] });
+  };
+
+  if (loading || !user || !(isAdmin || isTeacher)) return null;
 
   const statusVariant = (s: string) =>
     s === "approved" ? "default" : s === "rejected" ? "destructive" : "secondary";
@@ -87,13 +97,25 @@ function AdminPage() {
               <CardContent>
                 <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{t.abstract}</p>
                 <div className="flex flex-wrap gap-2">
-                  {t.status !== "approved" && (
+                  {isAdmin && t.status !== "approved" && (
                     <Button size="sm" onClick={() => setStatus(t.id, "approved")}><Check className="h-4 w-4 mr-1" />{tr("admin.approve")}</Button>
                   )}
-                  {t.status !== "rejected" && (
+                  {isAdmin && t.status !== "rejected" && (
                     <Button size="sm" variant="outline" onClick={() => setStatus(t.id, "rejected")}><X className="h-4 w-4 mr-1" />{tr("admin.reject")}</Button>
                   )}
-                  <Button size="sm" variant="destructive" onClick={() => del(t.id)}><Trash2 className="h-4 w-4 mr-1" />{tr("admin.delete")}</Button>
+                  {t.status === "approved" && (
+                    <Button
+                      size="sm"
+                      variant={t.recommended ? "default" : "outline"}
+                      onClick={() => toggleRecommend(t.id, t.recommended)}
+                    >
+                      <Star className={`h-4 w-4 mr-1 ${t.recommended ? "fill-current" : ""}`} />
+                      {t.recommended ? tr("admin.unrecommend") : tr("admin.recommend")}
+                    </Button>
+                  )}
+                  {isAdmin && (
+                    <Button size="sm" variant="destructive" onClick={() => del(t.id)}><Trash2 className="h-4 w-4 mr-1" />{tr("admin.delete")}</Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
