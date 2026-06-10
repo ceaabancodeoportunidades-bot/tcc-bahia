@@ -22,7 +22,7 @@ async function isValidPdf(file: File): Promise<boolean> {
 }
 
 export const Route = createFileRoute("/submit")({
-  head: () => ({ meta: [{ title: "Enviar TCC — Ceaa tcc" }] }),
+  head: () => ({ meta: [{ title: "Enviar TCC — Tcc Bahia" }] }),
   component: SubmitPage,
 });
 

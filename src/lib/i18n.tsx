@@ -4,14 +4,14 @@ export type Lang = "pt" | "en";
 
 const dict = {
   // Header / nav
-  "nav.brand": { pt: "Ceaa tcc", en: "Ceaa tcc" },
+  "nav.brand": { pt: "Tcc Bahia", en: "Tcc Bahia" },
   "nav.submit": { pt: "Enviar TCC", en: "Submit TCC" },
   "nav.admin": { pt: "Admin", en: "Admin" },
   "nav.signout": { pt: "Sair", en: "Sign out" },
   "nav.signin": { pt: "Entrar", en: "Sign in" },
 
   // Home
-  "home.title": { pt: "Acervo de TCCs", en: "TCC Archive" },
+  "home.title": { pt: "Banco de TCCs", en: "TCC Bank" },
   "home.subtitle": {
     pt: "Trabalhos de conclusão de curso do ensino médio — anos anteriores e atuais.",
     en: "High school capstone projects — current and past years.",
@@ -31,7 +31,7 @@ const dict = {
   "home.tabs.recent": { pt: "Recentes", en: "Recent" },
   "home.close": { pt: "Fechar", en: "Close" },
   "theme.toggle": { pt: "Alternar tema", en: "Toggle theme" },
-  "home.metaTitle": { pt: "Ceaa tcc — Acervo de TCCs do Ensino Médio", en: "Ceaa tcc — High School TCC Archive" },
+  "home.metaTitle": { pt: "Tcc Bahia — Banco de TCCs do Ensino Médio", en: "Tcc Bahia — High School TCC Bank" },
   "home.metaDesc": {
     pt: "Banco de trabalhos de conclusão de curso (TCC) do ensino médio. Explore resumos por ano, área e autor.",
     en: "High school capstone project archive. Browse abstracts by year, area, and author.",
@@ -58,7 +58,7 @@ const dict = {
   "submit.error": { pt: "Erro ao enviar", en: "Submission error" },
 
   // Auth
-  "auth.metaTitle": { pt: "Entrar — Ceaa tcc", en: "Sign in — Ceaa tcc" },
+  "auth.metaTitle": { pt: "Entrar — Tcc Bahia", en: "Sign in — Tcc Bahia" },
   "auth.cardTitle": { pt: "Acesso", en: "Access" },
   "auth.cardDesc": { pt: "Entre como aluno ou professor.", en: "Sign in as student or teacher." },
   "auth.signin": { pt: "Entrar", en: "Sign in" },
@@ -77,7 +77,7 @@ const dict = {
   "submit.invalidPdf": { pt: "Envie um arquivo PDF válido.", en: "Please upload a valid PDF file." },
 
   // Admin
-  "admin.metaTitle": { pt: "Admin — Ceaa tcc", en: "Admin — Ceaa tcc" },
+  "admin.metaTitle": { pt: "Admin — Tcc Bahia", en: "Admin — Tcc Bahia" },
   "admin.title": { pt: "Painel do Professor", en: "Teacher Panel" },
   "admin.empty": { pt: "Nenhum TCC enviado ainda.", en: "No TCC submitted yet." },
   "admin.approve": { pt: "Aprovar", en: "Approve" },
