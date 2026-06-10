@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/site-header";
 import { Input } from "@/components/ui/input";
@@ -8,10 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download, Search, FileText, Clock } from "lucide-react";
+import { Download, Search, FileText, Clock, Trophy, Star } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/hooks/use-auth";
+import { StarRating } from "@/components/star-rating";
+import { toast } from "sonner";
 import heroImage from "@/assets/hero-banco-tccs.jpg";
 
 export const Route = createFileRoute("/")({
@@ -28,10 +31,12 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t: tr } = useI18n();
+  const { user } = useAuth();
+  const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [year, setYear] = useState<string>("all");
   const [area, setArea] = useState<string>("all");
-  const [tab, setTab] = useState<"all" | "recent">("all");
+  const [tab, setTab] = useState<"all" | "recent" | "top">("all");
   const [selected, setSelected] = useState<any | null>(null);
 
   const { data: tccs = [], isLoading } = useQuery({
@@ -47,6 +52,34 @@ function Index() {
       return data;
     },
   });
+
+  const { data: ratings = [] } = useQuery({
+    queryKey: ["tcc_ratings"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("tcc_ratings").select("tcc_id,user_id,rating");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const ratingStats = useMemo(() => {
+    const map = new Map<string, { sum: number; count: number; mine: number | null }>();
+    for (const r of ratings) {
+      const cur = map.get(r.tcc_id) ?? { sum: 0, count: 0, mine: null };
+      cur.sum += r.rating;
+      cur.count += 1;
+      if (user && r.user_id === user.id) cur.mine = r.rating;
+      map.set(r.tcc_id, cur);
+    }
+    return map;
+  }, [ratings, user]);
+
+  const avgFor = (id: string) => {
+    const s = ratingStats.get(id);
+    return s && s.count ? s.sum / s.count : 0;
+  };
+  const countFor = (id: string) => ratingStats.get(id)?.count ?? 0;
+  const mineFor = (id: string) => ratingStats.get(id)?.mine ?? 0;
 
   const years = useMemo(() => Array.from(new Set(tccs.map((t) => t.year))).sort((a, b) => b - a), [tccs]);
   const areas = useMemo(() => Array.from(new Set(tccs.map((t) => t.area).filter(Boolean))).sort(), [tccs]);
@@ -69,12 +102,37 @@ function Index() {
       .slice(0, 12);
   }, [tccs]);
 
-  const visible = tab === "recent" ? recent : filtered;
+  const top3 = useMemo(() => {
+    return [...tccs]
+      .map((t) => ({ t, avg: avgFor(t.id), count: countFor(t.id) }))
+      .filter((x) => x.count > 0)
+      .sort((a, b) => b.avg - a.avg || b.count - a.count)
+      .slice(0, 3)
+      .map((x) => x.t);
+  }, [tccs, ratingStats]);
+
+  const visible = tab === "recent" ? recent : tab === "top" ? top3 : filtered;
 
   const downloadPdf = async (path: string) => {
     const { data, error } = await supabase.storage.from("tcc-pdfs").createSignedUrl(path, 60);
     if (error || !data) return;
     window.open(data.signedUrl, "_blank");
+  };
+
+  const rate = async (tccId: string, rating: number) => {
+    if (!user) {
+      toast.error(tr("home.signInToRate"));
+      return;
+    }
+    const { error } = await supabase
+      .from("tcc_ratings")
+      .upsert({ tcc_id: tccId, user_id: user.id, rating }, { onConflict: "tcc_id,user_id" });
+    if (error) {
+      console.error("rate error", error);
+      toast.error(tr("error.generic"));
+      return;
+    }
+    qc.invalidateQueries({ queryKey: ["tcc_ratings"] });
   };
 
   return (
@@ -102,6 +160,7 @@ function Index() {
           <TabsList>
             <TabsTrigger value="all"><FileText className="h-4 w-4 mr-1" />{tr("home.tabs.all")}</TabsTrigger>
             <TabsTrigger value="recent"><Clock className="h-4 w-4 mr-1" />{tr("home.tabs.recent")}</TabsTrigger>
+            <TabsTrigger value="top"><Trophy className="h-4 w-4 mr-1" />{tr("home.tabs.top")}</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -137,35 +196,60 @@ function Index() {
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {visible.map((t) => (
-              <Card
-                key={t.id}
-                className="flex flex-col cursor-pointer transition-colors hover:border-primary/50 hover:bg-accent/30"
-                onClick={() => setSelected(t)}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <Badge variant="secondary">{t.year}</Badge>
-                    {t.area && <Badge variant="outline">{t.area}</Badge>}
-                  </div>
-                  <CardTitle className="text-lg leading-snug">{t.title}</CardTitle>
-                  <p className="text-xs text-muted-foreground">{tr("home.by")} {t.authors}{t.advisor ? ` · ${tr("home.advisorShort")}: ${t.advisor}` : ""}</p>
-                </CardHeader>
-                <CardContent className="flex-1 flex flex-col">
-                  <p className="text-sm text-muted-foreground line-clamp-5 flex-1">{t.abstract}</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); setSelected(t); }}>
-                      {tr("home.readMore")}
-                    </Button>
-                    {t.pdf_path && (
-                      <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); downloadPdf(t.pdf_path!); }}>
-                        <Download className="h-4 w-4 mr-1" /> {tr("home.download")}
+            {visible.map((t, idx) => {
+              const avg = avgFor(t.id);
+              const count = countFor(t.id);
+              const topRank = tab === "top" ? idx + 1 : null;
+              return (
+                <Card
+                  key={t.id}
+                  className="flex flex-col cursor-pointer transition-all bg-primary text-primary-foreground border-primary/40 hover:brightness-110 hover:shadow-lg"
+                  onClick={() => setSelected(t)}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-2 mb-1 flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {topRank && (
+                          <Badge className="bg-yellow-400 text-yellow-950 hover:bg-yellow-400">
+                            <Trophy className="h-3 w-3 mr-1" /> #{topRank}
+                          </Badge>
+                        )}
+                        <Badge className="bg-primary-foreground/15 text-primary-foreground border-0">{t.year}</Badge>
+                        {t.area && <Badge variant="outline" className="border-primary-foreground/40 text-primary-foreground">{t.area}</Badge>}
+                      </div>
+                      {t.recommended && (
+                        <span
+                          title={tr("home.recommended")}
+                          aria-label={tr("home.recommended")}
+                          className="inline-flex items-center gap-1 text-yellow-300"
+                        >
+                          <Star className="h-5 w-5 fill-yellow-300" />
+                        </span>
+                      )}
+                    </div>
+                    <CardTitle className="text-lg leading-snug text-primary-foreground">{t.title}</CardTitle>
+                    <p className="text-xs text-primary-foreground/80">{tr("home.by")} {t.authors}{t.advisor ? ` · ${tr("home.advisorShort")}: ${t.advisor}` : ""}</p>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col">
+                    <p className="text-sm text-primary-foreground/90 line-clamp-5 flex-1">{t.abstract}</p>
+                    <div className="mt-3 flex items-center gap-2 text-xs text-primary-foreground/90">
+                      <StarRating value={avg} readOnly size={14} />
+                      <span>{count > 0 ? `${avg.toFixed(1)} (${count})` : tr("home.noRatings")}</span>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Button variant="secondary" size="sm" onClick={(e) => { e.stopPropagation(); setSelected(t); }}>
+                        {tr("home.readMore")}
                       </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                      {t.pdf_path && (
+                        <Button variant="outline" size="sm" className="bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" onClick={(e) => { e.stopPropagation(); downloadPdf(t.pdf_path!); }}>
+                          <Download className="h-4 w-4 mr-1" /> {tr("home.download")}
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </main>
@@ -178,6 +262,11 @@ function Index() {
                 <div className="flex items-center gap-2 mb-2">
                   <Badge variant="secondary">{selected.year}</Badge>
                   {selected.area && <Badge variant="outline">{selected.area}</Badge>}
+                  {selected.recommended && (
+                    <Badge className="bg-yellow-400 text-yellow-950 hover:bg-yellow-400">
+                      <Star className="h-3 w-3 mr-1 fill-current" /> {tr("home.recommended")}
+                    </Badge>
+                  )}
                 </div>
                 <DialogTitle className="text-2xl leading-tight">{selected.title}</DialogTitle>
                 <DialogDescription>
@@ -185,6 +274,24 @@ function Index() {
                   {selected.advisor ? ` · ${tr("home.advisorShort")}: ${selected.advisor}` : ""}
                 </DialogDescription>
               </DialogHeader>
+              <div className="mt-3 flex items-center gap-3 flex-wrap rounded-md border p-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{tr("home.avgRating")}:</span>
+                  <StarRating value={avgFor(selected.id)} readOnly />
+                  <span className="text-sm text-muted-foreground">
+                    {countFor(selected.id) > 0 ? `${avgFor(selected.id).toFixed(1)} · ${countFor(selected.id)} ${tr("home.ratings")}` : tr("home.noRatings")}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 ml-auto">
+                  <span className="text-sm">{tr("home.rate")}:</span>
+                  <StarRating
+                    value={mineFor(selected.id)}
+                    onChange={(v) => rate(selected.id, v)}
+                    readOnly={!user}
+                  />
+                  {!user && <span className="text-xs text-muted-foreground">{tr("home.signInToRate")}</span>}
+                </div>
+              </div>
               <div className="text-sm whitespace-pre-wrap leading-relaxed text-foreground/90 mt-2">
                 {selected.abstract}
               </div>
