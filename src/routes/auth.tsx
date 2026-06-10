@@ -34,7 +34,10 @@ function AuthPage() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) toast.error(error.message);
+    if (error) {
+      console.error("sign in error", error);
+      toast.error(t("auth.signinError"));
+    }
     else { toast.success(t("auth.welcome")); navigate({ to: "/" }); }
   };
 
@@ -49,7 +52,10 @@ function AuthPage() {
       },
     });
     setLoading(false);
-    if (error) toast.error(error.message);
+    if (error) {
+      console.error("sign up error", error);
+      toast.error(t("auth.signupError"));
+    }
     else { toast.success(t("auth.created")); }
   };
 
