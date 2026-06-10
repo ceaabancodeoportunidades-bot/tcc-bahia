@@ -7,7 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 
 export function SiteHeader() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isTeacher } = useAuth();
   const { t, lang, setLang } = useI18n();
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
@@ -60,7 +60,7 @@ export function SiteHeader() {
               <Button asChild variant="ghost" size="sm">
                 <Link to="/submit"><Upload className="h-4 w-4 mr-1" />{t("nav.submit")}</Link>
               </Button>
-              {isAdmin && (
+              {(isAdmin || isTeacher) && (
                 <Button asChild variant="ghost" size="sm">
                   <Link to="/admin"><Shield className="h-4 w-4 mr-1" />{t("nav.admin")}</Link>
                 </Button>
