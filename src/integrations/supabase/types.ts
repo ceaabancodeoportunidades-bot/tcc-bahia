@@ -32,6 +32,41 @@ export type Database = {
         }
         Relationships: []
       }
+      tcc_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          rating: number
+          tcc_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rating: number
+          tcc_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rating?: number
+          tcc_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tcc_ratings_tcc_id_fkey"
+            columns: ["tcc_id"]
+            isOneToOne: false
+            referencedRelation: "tccs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tccs: {
         Row: {
           abstract: string
@@ -41,6 +76,7 @@ export type Database = {
           created_at: string
           id: string
           pdf_path: string | null
+          recommended: boolean
           status: Database["public"]["Enums"]["tcc_status"]
           title: string
           updated_at: string
@@ -55,6 +91,7 @@ export type Database = {
           created_at?: string
           id?: string
           pdf_path?: string | null
+          recommended?: boolean
           status?: Database["public"]["Enums"]["tcc_status"]
           title: string
           updated_at?: string
@@ -69,6 +106,7 @@ export type Database = {
           created_at?: string
           id?: string
           pdf_path?: string | null
+          recommended?: boolean
           status?: Database["public"]["Enums"]["tcc_status"]
           title?: string
           updated_at?: string
