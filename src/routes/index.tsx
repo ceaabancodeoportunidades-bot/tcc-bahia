@@ -156,7 +156,7 @@ function Index() {
       </section>
       <main className="container mx-auto px-4 py-10">
 
-        <Tabs value={tab} onValueChange={(v) => setTab(v as "all" | "recent")} className="mb-6">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as "all" | "recent" | "top")} className="mb-6">
           <TabsList>
             <TabsTrigger value="all"><FileText className="h-4 w-4 mr-1" />{tr("home.tabs.all")}</TabsTrigger>
             <TabsTrigger value="recent"><Clock className="h-4 w-4 mr-1" />{tr("home.tabs.recent")}</TabsTrigger>
