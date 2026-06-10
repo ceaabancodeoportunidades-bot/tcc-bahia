@@ -5,15 +5,19 @@ import type { User } from "@supabase/supabase-js";
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isTeacher, setIsTeacher] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
 
     const loadRole = async (uid: string | undefined) => {
-      if (!uid) { if (mounted) setIsAdmin(false); return; }
+      if (!uid) { if (mounted) { setIsAdmin(false); setIsTeacher(false); } return; }
       const { data } = await supabase.from("user_roles").select("role").eq("user_id", uid);
-      if (mounted) setIsAdmin(!!data?.some((r) => r.role === "admin"));
+      if (mounted) {
+        setIsAdmin(!!data?.some((r) => r.role === "admin"));
+        setIsTeacher(!!data?.some((r) => r.role === "teacher" || r.role === "admin"));
+      }
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
@@ -29,5 +33,5 @@ export function useAuth() {
     return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
-  return { user, isAdmin, loading };
+  return { user, isAdmin, isTeacher, loading };
 }
