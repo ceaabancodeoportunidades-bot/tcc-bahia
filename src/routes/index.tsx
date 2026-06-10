@@ -12,6 +12,7 @@ import { Download, Search, FileText, Clock } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
+import heroImage from "@/assets/hero-banco-tccs.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -79,11 +80,23 @@ function Index() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
+      <section
+        className="relative w-full h-[340px] md:h-[420px] flex items-center justify-center overflow-hidden border-b"
+        style={{
+          backgroundImage: `url(${heroImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/40 to-black/60" />
+        <div className="relative z-10 text-center max-w-2xl mx-auto px-4">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-4 text-white drop-shadow-lg">
+            {tr("home.title")}
+          </h1>
+          <p className="text-white/90 text-lg md:text-xl drop-shadow">{tr("home.subtitle")}</p>
+        </div>
+      </section>
       <main className="container mx-auto px-4 py-10">
-        <section className="mb-10 text-center max-w-2xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-3">{tr("home.title")}</h1>
-          <p className="text-muted-foreground text-lg">{tr("home.subtitle")}</p>
-        </section>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as "all" | "recent")} className="mb-6">
           <TabsList>
