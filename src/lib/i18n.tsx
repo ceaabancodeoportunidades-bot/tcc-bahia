@@ -70,6 +70,11 @@ const dict = {
   "auth.teacherNote": { pt: "Contas de professor são criadas pelo administrador.", en: "Teacher accounts are created by the administrator." },
   "auth.welcome": { pt: "Bem-vindo!", en: "Welcome!" },
   "auth.created": { pt: "Conta criada! Você já pode entrar.", en: "Account created! You can sign in now." },
+  "auth.signinError": { pt: "Email ou senha inválidos.", en: "Invalid email or password." },
+  "auth.signupError": { pt: "Não foi possível criar a conta. Verifique os dados e tente novamente.", en: "Could not create account. Check your details and try again." },
+  "error.generic": { pt: "Algo deu errado. Tente novamente.", en: "Something went wrong. Please try again." },
+  "submit.fileTooLarge": { pt: "Arquivo muito grande (máx. 25 MB).", en: "File too large (max 25 MB)." },
+  "submit.invalidPdf": { pt: "Envie um arquivo PDF válido.", en: "Please upload a valid PDF file." },
 
   // Admin
   "admin.metaTitle": { pt: "Admin — Ceaa tcc", en: "Admin — Ceaa tcc" },

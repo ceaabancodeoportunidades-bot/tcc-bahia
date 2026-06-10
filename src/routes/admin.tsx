@@ -38,7 +38,10 @@ function AdminPage() {
 
   const setStatus = async (id: string, status: "approved" | "rejected" | "pending") => {
     const { error } = await supabase.from("tccs").update({ status }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      console.error("update status error", error);
+      return toast.error(tr("error.generic"));
+    }
     toast.success(tr("admin.updated"));
     qc.invalidateQueries({ queryKey: ["tccs"] });
   };
@@ -46,7 +49,10 @@ function AdminPage() {
   const del = async (id: string) => {
     if (!confirm(tr("admin.confirmDelete"))) return;
     const { error } = await supabase.from("tccs").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      console.error("delete tcc error", error);
+      return toast.error(tr("error.generic"));
+    }
     toast.success(tr("admin.deleted"));
     qc.invalidateQueries({ queryKey: ["tccs"] });
   };

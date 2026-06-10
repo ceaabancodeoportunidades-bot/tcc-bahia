@@ -11,6 +11,16 @@ import { SiteHeader } from "@/components/site-header";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 
+const MAX_PDF_BYTES = 25 * 1024 * 1024; // 25 MB
+
+async function isValidPdf(file: File): Promise<boolean> {
+  if (file.type && file.type !== "application/pdf") return false;
+  if (!/\.pdf$/i.test(file.name)) return false;
+  const head = new Uint8Array(await file.slice(0, 5).arrayBuffer());
+  // %PDF-
+  return head[0] === 0x25 && head[1] === 0x50 && head[2] === 0x44 && head[3] === 0x46 && head[4] === 0x2d;
+}
+
 export const Route = createFileRoute("/submit")({
   head: () => ({ meta: [{ title: "Enviar TCC — Ceaa tcc" }] }),
   component: SubmitPage,
@@ -40,8 +50,20 @@ function SubmitPage() {
     try {
       let pdf_path: string | null = null;
       if (pdf) {
+        if (pdf.size > MAX_PDF_BYTES) {
+          toast.error(t("submit.fileTooLarge"));
+          setSaving(false);
+          return;
+        }
+        if (!(await isValidPdf(pdf))) {
+          toast.error(t("submit.invalidPdf"));
+          setSaving(false);
+          return;
+        }
         const path = `${user.id}/${Date.now()}-${pdf.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        const { error: upErr } = await supabase.storage.from("tcc-pdfs").upload(path, pdf);
+        const { error: upErr } = await supabase.storage
+          .from("tcc-pdfs")
+          .upload(path, pdf, { contentType: "application/pdf", upsert: false });
         if (upErr) throw upErr;
         pdf_path = path;
       }
@@ -51,8 +73,9 @@ function SubmitPage() {
       if (error) throw error;
       toast.success(t("submit.success"));
       navigate({ to: "/" });
-    } catch (err: any) {
-      toast.error(err.message ?? t("submit.error"));
+    } catch (err) {
+      console.error("submit error", err);
+      toast.error(t("submit.error"));
     } finally {
       setSaving(false);
     }
