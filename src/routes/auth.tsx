@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Entrar — Ceaa tcc" }] }),
+  head: () => ({ meta: [{ title: "Entrar — Tcc Bahia" }] }),
   component: AuthPage,
 });
 

@@ -16,9 +16,9 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Ceaa tcc — Acervo de TCCs" },
-      { name: "description", content: "Ceaa tcc — banco de trabalhos de conclusão de curso (TCC) do ensino médio." },
-      { property: "og:title", content: "Ceaa tcc — Acervo de TCCs" },
+      { title: "Tcc Bahia — Banco de TCCs" },
+      { name: "description", content: "Tcc Bahia — banco de trabalhos de conclusão de curso (TCC) do ensino médio." },
+      { property: "og:title", content: "Tcc Bahia — Banco de TCCs" },
       { property: "og:description", content: "Explore trabalhos de conclusão de curso por ano, área e autor." },
     ],
   }),

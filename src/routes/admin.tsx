@@ -12,7 +12,7 @@ import { Check, X, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin — Ceaa tcc" }] }),
+  head: () => ({ meta: [{ title: "Admin — Tcc Bahia" }] }),
   component: AdminPage,
 });
 
