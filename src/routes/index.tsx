@@ -56,23 +56,42 @@ function Index() {
   const { data: ratings = [] } = useQuery({
     queryKey: ["tcc_ratings"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("tcc_ratings").select("tcc_id,user_id,rating");
+      // Only own ratings are visible per RLS
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from("tcc_ratings")
+        .select("tcc_id,user_id,rating")
+        .eq("user_id", user.id);
       if (error) throw error;
       return data;
     },
   });
 
+  const { data: stats = [] } = useQuery({
+    queryKey: ["tcc_rating_stats"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("get_tcc_rating_stats");
+      if (error) throw error;
+      return data as { tcc_id: string; avg_rating: number; rating_count: number }[];
+    },
+  });
+
   const ratingStats = useMemo(() => {
     const map = new Map<string, { sum: number; count: number; mine: number | null }>();
+    for (const s of stats) {
+      map.set(s.tcc_id, {
+        sum: Number(s.avg_rating) * s.rating_count,
+        count: s.rating_count,
+        mine: null,
+      });
+    }
     for (const r of ratings) {
       const cur = map.get(r.tcc_id) ?? { sum: 0, count: 0, mine: null };
-      cur.sum += r.rating;
-      cur.count += 1;
-      if (user && r.user_id === user.id) cur.mine = r.rating;
+      cur.mine = r.rating;
       map.set(r.tcc_id, cur);
     }
     return map;
-  }, [ratings, user]);
+  }, [ratings, stats]);
 
   const avgFor = (id: string) => {
     const s = ratingStats.get(id);
@@ -133,6 +152,7 @@ function Index() {
       return;
     }
     qc.invalidateQueries({ queryKey: ["tcc_ratings"] });
+    qc.invalidateQueries({ queryKey: ["tcc_rating_stats"] });
   };
 
   return (

@@ -138,6 +138,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_tcc_rating_stats: {
+        Args: never
+        Returns: {
+          avg_rating: number
+          rating_count: number
+          tcc_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
