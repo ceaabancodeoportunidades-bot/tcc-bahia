@@ -36,6 +36,9 @@ export function SiteHeader() {
           <span>{t("nav.brand")}</span>
         </Link>
         <nav className="flex items-center gap-2">
+          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+            <Link to="/privacy">Privacidade</Link>
+          </Button>
           <Button
             variant="ghost"
             size="icon"
