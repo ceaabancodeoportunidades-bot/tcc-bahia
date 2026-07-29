@@ -63,7 +63,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #C9C8C7;
+  --background: #8FD9FB;
   --foreground: oklch(0.18 0.04 260);
   --card: #f5f4f3;
   --card-foreground: oklch(0.18 0.04 260);
