@@ -103,15 +103,59 @@ function Index() {
   const years = useMemo(() => Array.from(new Set(tccs.map((t) => t.year))).sort((a, b) => b - a), [tccs]);
   const areas = useMemo(() => Array.from(new Set(tccs.map((t) => t.area).filter(Boolean))).sort(), [tccs]);
 
-  const filtered = tccs.filter((t) => {
-    if (year !== "all" && t.year !== Number(year)) return false;
-    if (area !== "all" && t.area !== area) return false;
-    if (q) {
-      const s = q.toLowerCase();
-      return t.title.toLowerCase().includes(s) || t.authors.toLowerCase().includes(s) || t.abstract.toLowerCase().includes(s);
-    }
-    return true;
-  });
+  const filtered = useMemo(() => {
+    const norm = (s: string) =>
+      (s ?? "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    const stop = new Set(["de","da","do","das","dos","a","o","e","em","para","com","no","na","um","uma","the","of","and","in","for","to"]);
+    const terms = norm(q).split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !stop.has(w));
+
+    const base = tccs.filter((t) => {
+      if (year !== "all" && t.year !== Number(year)) return false;
+      if (area !== "all" && t.area !== area) return false;
+      return true;
+    });
+
+    if (terms.length === 0) return base;
+
+    const scored = base
+      .map((t) => {
+        const title = norm(t.title);
+        const authors = norm(t.authors);
+        const abstract = norm(t.abstract);
+        const areaTxt = norm(t.area ?? "");
+        const advisor = norm(t.advisor ?? "");
+        let score = 0;
+        let matched = 0;
+        for (const term of terms) {
+          let s = 0;
+          if (title.includes(term)) s += 10;
+          if (areaTxt.includes(term)) s += 6;
+          if (authors.includes(term) || advisor.includes(term)) s += 5;
+          if (abstract.includes(term)) {
+            const occurrences = abstract.split(term).length - 1;
+            s += 3 + Math.min(occurrences - 1, 5);
+          }
+          // partial / stem match (plurals, variações)
+          if (s === 0 && term.length > 4) {
+            const stem = term.slice(0, Math.max(4, term.length - 2));
+            if (title.includes(stem)) s += 5;
+            else if (abstract.includes(stem) || areaTxt.includes(stem)) s += 2;
+          }
+          if (s > 0) matched++;
+          score += s;
+        }
+        // bônus por cobrir todas as palavras-chave
+        if (matched === terms.length) score += 8;
+        return { t, score, matched };
+      })
+      .filter((x) => x.matched > 0)
+      .sort((a, b) => b.score - a.score || b.t.year - a.t.year);
+
+    return scored.map((x) => x.t);
+  }, [tccs, q, year, area]);
 
   const recent = useMemo(() => {
     const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
