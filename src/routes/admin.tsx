@@ -1,14 +1,18 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { SiteHeader } from "@/components/site-header";
 import { toast } from "sonner";
-import { Check, X, Trash2, Star } from "lucide-react";
+import { Check, X, Trash2, Star, Pencil } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/admin")({
@@ -21,6 +25,8 @@ function AdminPage() {
   const { user, isAdmin, isTeacher, loading } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [editing, setEditing] = useState<any | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!loading && (!user || !(isAdmin || isTeacher))) navigate({ to: "/" });
@@ -64,6 +70,30 @@ function AdminPage() {
       return toast.error(tr("error.generic"));
     }
     toast.success(tr("admin.updated"));
+    qc.invalidateQueries({ queryKey: ["tccs"] });
+  };
+
+  const saveEdit = async () => {
+    if (!editing) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("tccs")
+      .update({
+        title: editing.title,
+        authors: editing.authors,
+        year: Number(editing.year),
+        area: editing.area ?? "",
+        advisor: editing.advisor ?? "",
+        abstract: editing.abstract,
+      })
+      .eq("id", editing.id);
+    setSaving(false);
+    if (error) {
+      console.error("edit tcc error", error);
+      return toast.error(tr("error.generic"));
+    }
+    toast.success(tr("admin.updated"));
+    setEditing(null);
     qc.invalidateQueries({ queryKey: ["tccs"] });
   };
 
@@ -116,12 +146,36 @@ function AdminPage() {
                   {isAdmin && (
                     <Button size="sm" variant="destructive" onClick={() => del(t.id)}><Trash2 className="h-4 w-4 mr-1" />{tr("admin.delete")}</Button>
                   )}
+                  {isAdmin && (
+                    <Button size="sm" variant="secondary" onClick={() => setEditing({ ...t })}><Pencil className="h-4 w-4 mr-1" />{tr("admin.edit")}</Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       </main>
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader><DialogTitle>{tr("admin.editTitle")}</DialogTitle></DialogHeader>
+          {editing && (
+            <div className="space-y-3">
+              <div><Label>{tr("admin.field.title")}</Label><Input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></div>
+              <div><Label>{tr("admin.field.authors")}</Label><Input value={editing.authors} onChange={(e) => setEditing({ ...editing, authors: e.target.value })} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label>{tr("admin.field.year")}</Label><Input type="number" value={editing.year} onChange={(e) => setEditing({ ...editing, year: e.target.value })} /></div>
+                <div><Label>{tr("admin.field.area")}</Label><Input value={editing.area ?? ""} onChange={(e) => setEditing({ ...editing, area: e.target.value })} /></div>
+              </div>
+              <div><Label>{tr("admin.field.advisor")}</Label><Input value={editing.advisor ?? ""} onChange={(e) => setEditing({ ...editing, advisor: e.target.value })} /></div>
+              <div><Label>{tr("admin.field.abstract")}</Label><Textarea rows={8} value={editing.abstract} onChange={(e) => setEditing({ ...editing, abstract: e.target.value })} /></div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditing(null)}>{tr("admin.cancel")}</Button>
+            <Button onClick={saveEdit} disabled={saving}>{tr("admin.save")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
