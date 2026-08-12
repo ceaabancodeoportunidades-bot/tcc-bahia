@@ -101,6 +101,16 @@ const dict = {
   "admin.status.approved": { pt: "Aprovado", en: "Approved" },
   "admin.status.rejected": { pt: "Rejeitado", en: "Rejected" },
   "admin.status.pending": { pt: "Pendente", en: "Pending" },
+  "admin.edit": { pt: "Editar", en: "Edit" },
+  "admin.editTitle": { pt: "Editar TCC", en: "Edit TCC" },
+  "admin.save": { pt: "Salvar", en: "Save" },
+  "admin.cancel": { pt: "Cancelar", en: "Cancel" },
+  "admin.field.title": { pt: "Título", en: "Title" },
+  "admin.field.authors": { pt: "Autores", en: "Authors" },
+  "admin.field.year": { pt: "Ano", en: "Year" },
+  "admin.field.area": { pt: "Área", en: "Area" },
+  "admin.field.advisor": { pt: "Orientador", en: "Advisor" },
+  "admin.field.abstract": { pt: "Resumo", en: "Abstract" },
 } as const;
 
 export type I18nKey = keyof typeof dict;
