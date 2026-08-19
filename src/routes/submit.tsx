@@ -22,7 +22,17 @@ async function isValidPdf(file: File): Promise<boolean> {
 }
 
 export const Route = createFileRoute("/submit")({
-  head: () => ({ meta: [{ title: "Enviar TCC — Tcc Bahia" }] }),
+  head: () => ({
+    meta: [
+      { title: "Enviar TCC — Tcc Bahia" },
+      { name: "description", content: "Envie seu trabalho de conclusão de curso do ensino médio: título, autores, ano, área, orientador, resumo e o arquivo PDF para avaliação dos professores." },
+      { property: "og:title", content: "Enviar TCC — Tcc Bahia" },
+      { property: "og:description", content: "Formulário para alunos enviarem seu TCC com resumo e PDF para avaliação dos professores." },
+      { property: "og:url", content: "https://tcc-bahia.lovable.app/submit" },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://tcc-bahia.lovable.app/submit" }],
+  }),
   component: SubmitPage,
 });
 
@@ -87,6 +97,7 @@ function SubmitPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="container mx-auto px-4 py-10 max-w-2xl">
+        <h1 className="text-3xl font-bold mb-6">{t("submit.title")}</h1>
         <Card>
           <CardHeader>
             <CardTitle>{t("submit.title")}</CardTitle>
