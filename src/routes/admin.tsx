@@ -16,7 +16,17 @@ import { Check, X, Trash2, Star, Pencil } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin — Tcc Bahia" }] }),
+  head: () => ({
+    meta: [
+      { title: "Painel do professor — Tcc Bahia" },
+      { name: "description", content: "Painel restrito para professores e administradores aprovarem, recomendarem e editarem os trabalhos de conclusão de curso enviados pelos alunos." },
+      { property: "og:title", content: "Painel do professor — Tcc Bahia" },
+      { property: "og:description", content: "Área restrita para avaliação, aprovação e recomendação dos TCCs enviados." },
+      { property: "og:url", content: "https://tcc-bahia.lovable.app/admin" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+    links: [{ rel: "canonical", href: "https://tcc-bahia.lovable.app/admin" }],
+  }),
   component: AdminPage,
 });
 

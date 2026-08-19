@@ -1,0 +1,8 @@
+# Tcc Bahia
+
+> Banco público de Trabalhos de Conclusão de Curso (TCC) do ensino médio: alunos enviam, professores avaliam e aprovam, e qualquer pessoa pode pesquisar e ler os resumos.
+
+## Pages
+
+- [Banco de TCCs](/): Acervo de TCCs aprovados, com busca por palavras-chave, filtros por ano e área, aba de recentes e top 3 mais bem avaliados.
+- [Privacidade e Segurança](/privacy): Política de privacidade, uso de dados, segurança e termos de uso.

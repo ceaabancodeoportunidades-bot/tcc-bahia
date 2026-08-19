@@ -20,10 +20,26 @@ import heroImage from "@/assets/hero-banco-tccs.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Tcc Bahia — Banco de TCCs" },
-      { name: "description", content: "Tcc Bahia — banco de trabalhos de conclusão de curso (TCC) do ensino médio." },
-      { property: "og:title", content: "Tcc Bahia — Banco de TCCs" },
-      { property: "og:description", content: "Explore trabalhos de conclusão de curso por ano, área e autor." },
+      { title: "Tcc Bahia — Banco de TCCs do Ensino Médio" },
+      { name: "description", content: "Pesquise trabalhos de conclusão de curso do ensino médio por palavras-chave, ano e área. Leia resumos completos e veja os TCCs mais bem avaliados." },
+      { property: "og:title", content: "Tcc Bahia — Banco de TCCs do Ensino Médio" },
+      { property: "og:description", content: "Pesquise TCCs do ensino médio por palavras-chave, ano e área, leia os resumos e descubra os melhores avaliados." },
+      { property: "og:url", content: "https://tcc-bahia.lovable.app/" },
+    ],
+    links: [{ rel: "canonical", href: "https://tcc-bahia.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "Banco de TCCs — Tcc Bahia",
+          description: "Acervo de trabalhos de conclusão de curso (TCC) do ensino médio, com busca por palavras-chave, ano e área.",
+          url: "https://tcc-bahia.lovable.app/",
+          about: { "@type": "Thing", name: "Trabalhos de Conclusão de Curso do ensino médio" },
+          isPartOf: { "@type": "WebSite", name: "Tcc Bahia", url: "https://tcc-bahia.lovable.app" },
+        }),
+      },
     ],
   }),
   component: Index,
@@ -219,7 +235,7 @@ function Index() {
         </div>
       </section>
       <main className="container mx-auto px-4 py-10">
-
+        <h2 className="sr-only">{tr("home.tabs.all")}</h2>
         <Tabs value={tab} onValueChange={(v) => setTab(v as "all" | "recent" | "top")} className="mb-6">
           <TabsList>
             <TabsTrigger value="all"><FileText className="h-4 w-4 mr-1" />{tr("home.tabs.all")}</TabsTrigger>
@@ -230,6 +246,7 @@ function Index() {
 
         {tab === "all" && (
         <div className="flex flex-col md:flex-row gap-3 mb-8">
+          <h3 className="sr-only">{tr("home.search")}</h3>
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder={tr("home.search")} value={q} onChange={(e) => setQ(e.target.value)} className="pl-9" />

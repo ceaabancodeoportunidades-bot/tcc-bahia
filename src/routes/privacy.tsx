@@ -6,7 +6,11 @@ export const Route = createFileRoute("/privacy")({
     meta: [
       { title: "Privacidade e Segurança — Tcc Bahia" },
       { name: "description", content: "Política de privacidade, segurança e termos de uso do banco de TCCs Tcc Bahia." },
+      { property: "og:title", content: "Privacidade e Segurança — Tcc Bahia" },
+      { property: "og:description", content: "Como o Tcc Bahia coleta, usa e protege os dados de alunos e professores, além dos termos de uso do banco de TCCs." },
+      { property: "og:url", content: "https://tcc-bahia.lovable.app/privacy" },
     ],
+    links: [{ rel: "canonical", href: "https://tcc-bahia.lovable.app/privacy" }],
   }),
   component: PrivacyPage,
 });
