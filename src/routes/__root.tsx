@@ -99,6 +99,32 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify([
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "Tcc Bahia",
+            alternateName: "Banco de TCCs",
+            url: "https://tcc-bahia.lovable.app",
+            description:
+              "Banco público de trabalhos de conclusão de curso (TCC) do ensino médio, com busca por palavras-chave, ano e área.",
+            inLanguage: "pt-BR",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "EducationalOrganization",
+            name: "Tcc Bahia",
+            url: "https://tcc-bahia.lovable.app",
+            description:
+              "Repositório acadêmico de trabalhos de conclusão de curso do ensino médio, mantido por professores e alunos.",
+            areaServed: "Bahia, Brasil",
+          },
+        ]),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
