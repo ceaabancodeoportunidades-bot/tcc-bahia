@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /auth
+
+Sitemap: https://tcc-bahia.lovable.app/sitemap.xml
