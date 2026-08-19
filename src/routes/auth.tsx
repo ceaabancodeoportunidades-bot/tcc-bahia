@@ -12,7 +12,17 @@ import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "Entrar — Tcc Bahia" }] }),
+  head: () => ({
+    meta: [
+      { title: "Entrar ou criar conta — Tcc Bahia" },
+      { name: "description", content: "Acesse sua conta do Tcc Bahia ou crie um cadastro de aluno para enviar e acompanhar trabalhos de conclusão de curso do ensino médio." },
+      { property: "og:title", content: "Entrar ou criar conta — Tcc Bahia" },
+      { property: "og:description", content: "Entre na sua conta ou cadastre-se como aluno para enviar seu TCC no Tcc Bahia." },
+      { property: "og:url", content: "https://tcc-bahia.lovable.app/auth" },
+      { name: "robots", content: "noindex, follow" },
+    ],
+    links: [{ rel: "canonical", href: "https://tcc-bahia.lovable.app/auth" }],
+  }),
   component: AuthPage,
 });
 
@@ -63,7 +73,9 @@ function AuthPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="container mx-auto px-4 py-16 flex justify-center">
-        <Card className="w-full max-w-md">
+        <div className="w-full max-w-md">
+          <h1 className="text-3xl font-bold mb-6 text-center">{t("auth.cardTitle")}</h1>
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>{t("auth.cardTitle")}</CardTitle>
             <CardDescription>{t("auth.cardDesc")}</CardDescription>
@@ -93,6 +105,7 @@ function AuthPage() {
             </Tabs>
           </CardContent>
         </Card>
+        </div>
       </main>
     </div>
   );
