@@ -75,8 +75,10 @@ export type Database = {
           authors: string
           created_at: string
           id: string
+          keywords: string[]
           pdf_path: string | null
           recommended: boolean
+          rejection_reason: string | null
           status: Database["public"]["Enums"]["tcc_status"]
           title: string
           updated_at: string
@@ -90,8 +92,10 @@ export type Database = {
           authors: string
           created_at?: string
           id?: string
+          keywords?: string[]
           pdf_path?: string | null
           recommended?: boolean
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["tcc_status"]
           title: string
           updated_at?: string
@@ -105,8 +109,10 @@ export type Database = {
           authors?: string
           created_at?: string
           id?: string
+          keywords?: string[]
           pdf_path?: string | null
           recommended?: boolean
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["tcc_status"]
           title?: string
           updated_at?: string
