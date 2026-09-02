@@ -111,7 +111,66 @@ const dict = {
   "admin.field.area": { pt: "Área", en: "Area" },
   "admin.field.advisor": { pt: "Orientador", en: "Advisor" },
   "admin.field.abstract": { pt: "Resumo", en: "Abstract" },
+  "admin.field.keywords": { pt: "Palavras-chave", en: "Keywords" },
+  "admin.pending": { pt: "pendentes", en: "pending" },
+  "admin.newSubmissions": { pt: "Novos TCCs aguardando avaliação", en: "New submissions awaiting review" },
+  "admin.rejectReasonTitle": { pt: "Motivo da rejeição", en: "Rejection reason" },
+  "admin.rejectReasonPh": { pt: "Explique o que o aluno precisa corrigir", en: "Explain what the student must fix" },
+  "admin.confirmReject": { pt: "Rejeitar TCC", en: "Reject TCC" },
+  "admin.filterAll": { pt: "Todos", en: "All" },
+
+  // Keywords / submit extras
+  "submit.fKeywords": { pt: "Palavras-chave", en: "Keywords" },
+  "submit.fKeywordsPh": { pt: "Separadas por vírgula. Ex.: energia solar, sustentabilidade", en: "Comma separated. e.g. solar energy, sustainability" },
+  "submit.selectArea": { pt: "Selecione a área", en: "Select an area" },
+  "submit.duplicateTitle": { pt: "Possível TCC duplicado", en: "Possible duplicate" },
+  "submit.duplicateDesc": { pt: "Encontramos trabalhos parecidos já cadastrados. Confira antes de enviar:", en: "We found similar submissions already registered. Please check before submitting:" },
+  "submit.duplicateContinue": { pt: "Enviar mesmo assim", en: "Submit anyway" },
+  "submit.checking": { pt: "Verificando duplicatas...", en: "Checking duplicates..." },
+
+  // Home extras
+  "home.keywords": { pt: "Palavras-chave", en: "Keywords" },
+  "home.exportCsv": { pt: "Exportar CSV", en: "Export CSV" },
+  "home.openPage": { pt: "Abrir página", en: "Open page" },
+  "home.results": { pt: "resultados", en: "results" },
+  "home.prev": { pt: "Anterior", en: "Previous" },
+  "home.next": { pt: "Próxima", en: "Next" },
+  "home.page": { pt: "Página", en: "Page" },
+  "home.ownTcc": { pt: "Você não pode avaliar o próprio TCC", en: "You can't rate your own TCC" },
+
+  // TCC page
+  "tcc.back": { pt: "Voltar ao banco", en: "Back to archive" },
+  "tcc.notFound": { pt: "TCC não encontrado.", en: "TCC not found." },
+  "tcc.viewer": { pt: "Documento", en: "Document" },
+  "tcc.openPdf": { pt: "Abrir em nova aba", en: "Open in new tab" },
+  "tcc.share": { pt: "Copiar link", en: "Copy link" },
+  "tcc.linkCopied": { pt: "Link copiado!", en: "Link copied!" },
+  "tcc.noPdf": { pt: "Este trabalho não possui PDF anexado.", en: "This work has no PDF attached." },
+
+  // Stats
+  "nav.stats": { pt: "Estatísticas", en: "Statistics" },
+  "stats.title": { pt: "Estatísticas do acervo", en: "Archive statistics" },
+  "stats.total": { pt: "TCCs aprovados", en: "Approved TCCs" },
+  "stats.areasCount": { pt: "Áreas", en: "Areas" },
+  "stats.yearsCount": { pt: "Anos", en: "Years" },
+  "stats.avgAll": { pt: "Média geral", en: "Overall average" },
+  "stats.byYear": { pt: "TCCs por ano", en: "TCCs per year" },
+  "stats.byArea": { pt: "TCCs por área", en: "TCCs per area" },
+  "stats.bestRated": { pt: "Mais bem avaliados", en: "Best rated" },
+  "stats.mostRated": { pt: "Mais avaliados", en: "Most rated" },
+
+  // My TCCs
+  "nav.mine": { pt: "Meus TCCs", en: "My TCCs" },
+  "mine.title": { pt: "Meus TCCs", en: "My TCCs" },
+  "mine.empty": { pt: "Você ainda não enviou nenhum TCC.", en: "You haven't submitted any TCC yet." },
+  "mine.rejectedReason": { pt: "Motivo da rejeição", en: "Rejection reason" },
+  "mine.fix": { pt: "Corrigir e reenviar", en: "Fix and resubmit" },
+  "mine.resubmit": { pt: "Reenviar para avaliação", en: "Resubmit for review" },
+  "mine.resubmitted": { pt: "Reenviado! Aguardando nova avaliação.", en: "Resubmitted! Awaiting review." },
+  "mine.locked": { pt: "TCC aprovado — alterações apenas pelo professor.", en: "Approved TCC — only teachers can edit." },
+  "mine.replacePdf": { pt: "Substituir PDF (opcional)", en: "Replace PDF (optional)" },
 } as const;
+
 
 export type I18nKey = keyof typeof dict;
 
