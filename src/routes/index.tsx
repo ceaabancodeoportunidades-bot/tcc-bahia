@@ -19,7 +19,7 @@ import heroImage from "@/assets/hero-banco-tccs.jpg";
 
 const PAGE_SIZE = 12;
 
-type HomeSearch = { q: string; year: string; area: string; page: number };
+type HomeSearch = { q?: string; year?: string; area?: string; page?: number };
 
 export const Route = createFileRoute("/")({
   validateSearch: (search: Record<string, unknown>): HomeSearch => ({
