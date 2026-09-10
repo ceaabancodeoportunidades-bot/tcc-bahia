@@ -60,7 +60,11 @@ function Index() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate({ from: "/" });
-  const { q, year, area, page } = Route.useSearch();
+  const search = Route.useSearch();
+  const q = search.q ?? "";
+  const year = search.year ?? "all";
+  const area = search.area ?? "all";
+  const page = search.page ?? 1;
   const [tab, setTab] = useState<"all" | "recent" | "top">("all");
 
   const setSearch = (patch: Partial<HomeSearch>) =>
