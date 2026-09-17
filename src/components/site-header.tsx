@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import { BookOpen, LogOut, Upload, Shield, Languages, Sun, Moon } from "lucide-react";
+import { BookOpen, LogOut, Upload, Shield, Languages, Sun, Moon, BarChart3, FolderOpen } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 
@@ -31,11 +31,14 @@ export function SiteHeader() {
   return (
     <header className="border-b bg-card/50 backdrop-blur sticky top-0 z-40">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-semibold text-lg">
+        <Link to="/" search={{}} className="flex items-center gap-2 font-semibold text-lg">
           <BookOpen className="h-5 w-5 text-primary" />
           <span>{t("nav.brand")}</span>
         </Link>
         <nav className="flex items-center gap-2">
+          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+            <Link to="/stats"><BarChart3 className="h-4 w-4 mr-1" />{t("nav.stats")}</Link>
+          </Button>
           <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
             <Link to="/privacy">Privacidade</Link>
           </Button>
@@ -60,6 +63,9 @@ export function SiteHeader() {
           </Button>
           {user ? (
             <>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/mine"><FolderOpen className="h-4 w-4 mr-1" />{t("nav.mine")}</Link>
+              </Button>
               <Button asChild variant="ghost" size="sm">
                 <Link to="/submit"><Upload className="h-4 w-4 mr-1" />{t("nav.submit")}</Link>
               </Button>
