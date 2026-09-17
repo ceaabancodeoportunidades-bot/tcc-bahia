@@ -14,6 +14,7 @@ import { SiteHeader } from "@/components/site-header";
 import { toast } from "sonner";
 import { Check, X, Trash2, Star, Pencil } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { parseKeywords } from "@/lib/areas";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -37,6 +38,8 @@ function AdminPage() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<any | null>(null);
   const [saving, setSaving] = useState(false);
+  const [rejecting, setRejecting] = useState<any | null>(null);
+  const [reason, setReason] = useState("");
 
   useEffect(() => {
     if (!loading && (!user || !(isAdmin || isTeacher))) navigate({ to: "/" });
@@ -53,7 +56,10 @@ function AdminPage() {
   });
 
   const setStatus = async (id: string, status: "approved" | "rejected" | "pending") => {
-    const { error } = await supabase.from("tccs").update({ status }).eq("id", id);
+    const { error } = await supabase
+      .from("tccs")
+      .update({ status, ...(status === "approved" ? { rejection_reason: null } : {}) })
+      .eq("id", id);
     if (error) {
       console.error("update status error", error);
       return toast.error(tr("error.generic"));
@@ -61,6 +67,25 @@ function AdminPage() {
     toast.success(tr("admin.updated"));
     qc.invalidateQueries({ queryKey: ["tccs"] });
   };
+
+  const confirmReject = async () => {
+    if (!rejecting) return;
+    setSaving(true);
+    const { error } = await supabase
+      .from("tccs")
+      .update({ status: "rejected", rejection_reason: reason.trim() || null })
+      .eq("id", rejecting.id);
+    setSaving(false);
+    if (error) {
+      console.error("reject error", error);
+      return toast.error(tr("error.generic"));
+    }
+    toast.success(tr("admin.updated"));
+    setRejecting(null);
+    setReason("");
+    qc.invalidateQueries({ queryKey: ["tccs"] });
+  };
+
 
   const del = async (id: string) => {
     if (!confirm(tr("admin.confirmDelete"))) return;
@@ -95,6 +120,7 @@ function AdminPage() {
         area: editing.area ?? "",
         advisor: editing.advisor ?? "",
         abstract: editing.abstract,
+        keywords: parseKeywords(Array.isArray(editing.keywords) ? editing.keywords.join(", ") : String(editing.keywords ?? "")),
       })
       .eq("id", editing.id);
     setSaving(false);
@@ -118,7 +144,14 @@ function AdminPage() {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <main className="container mx-auto px-4 py-10">
-        <h1 className="text-3xl font-bold mb-6">{tr("admin.title")}</h1>
+        <div className="flex items-center gap-3 mb-6 flex-wrap">
+          <h1 className="text-3xl font-bold">{tr("admin.title")}</h1>
+          {tccs.filter((x) => x.status === "pending").length > 0 && (
+            <Badge variant="secondary" title={tr("admin.newSubmissions")}>
+              {tccs.filter((x) => x.status === "pending").length} {tr("admin.pending")}
+            </Badge>
+          )}
+        </div>
         <div className="space-y-3">
           {tccs.length === 0 && <p className="text-muted-foreground">{tr("admin.empty")}</p>}
           {tccs.map((t) => (
@@ -141,7 +174,7 @@ function AdminPage() {
                     <Button size="sm" onClick={() => setStatus(t.id, "approved")}><Check className="h-4 w-4 mr-1" />{tr("admin.approve")}</Button>
                   )}
                   {isAdmin && t.status !== "rejected" && (
-                    <Button size="sm" variant="outline" onClick={() => setStatus(t.id, "rejected")}><X className="h-4 w-4 mr-1" />{tr("admin.reject")}</Button>
+                    <Button size="sm" variant="outline" onClick={() => { setRejecting(t); setReason(t.rejection_reason ?? ""); }}><X className="h-4 w-4 mr-1" />{tr("admin.reject")}</Button>
                   )}
                   {t.status === "approved" && (
                     <Button
@@ -177,12 +210,31 @@ function AdminPage() {
                 <div><Label>{tr("admin.field.area")}</Label><Input value={editing.area ?? ""} onChange={(e) => setEditing({ ...editing, area: e.target.value })} /></div>
               </div>
               <div><Label>{tr("admin.field.advisor")}</Label><Input value={editing.advisor ?? ""} onChange={(e) => setEditing({ ...editing, advisor: e.target.value })} /></div>
+              <div>
+                <Label>{tr("admin.field.keywords")}</Label>
+                <Input
+                  value={Array.isArray(editing.keywords) ? editing.keywords.join(", ") : editing.keywords ?? ""}
+                  onChange={(e) => setEditing({ ...editing, keywords: e.target.value })}
+                  placeholder={tr("submit.fKeywordsPh")}
+                />
+              </div>
               <div><Label>{tr("admin.field.abstract")}</Label><Textarea rows={8} value={editing.abstract} onChange={(e) => setEditing({ ...editing, abstract: e.target.value })} /></div>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)}>{tr("admin.cancel")}</Button>
             <Button onClick={saveEdit} disabled={saving}>{tr("admin.save")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!rejecting} onOpenChange={(o) => { if (!o) { setRejecting(null); setReason(""); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>{tr("admin.rejectReasonTitle")}</DialogTitle></DialogHeader>
+          <Textarea rows={5} value={reason} onChange={(e) => setReason(e.target.value)} placeholder={tr("admin.rejectReasonPh")} />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setRejecting(null); setReason(""); }}>{tr("admin.cancel")}</Button>
+            <Button variant="destructive" onClick={confirmReject} disabled={saving}>{tr("admin.confirmReject")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
