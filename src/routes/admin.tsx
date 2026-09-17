@@ -14,6 +14,7 @@ import { SiteHeader } from "@/components/site-header";
 import { toast } from "sonner";
 import { Check, X, Trash2, Star, Pencil } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { parseKeywords } from "@/lib/areas";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -119,6 +120,7 @@ function AdminPage() {
         area: editing.area ?? "",
         advisor: editing.advisor ?? "",
         abstract: editing.abstract,
+        keywords: parseKeywords(Array.isArray(editing.keywords) ? editing.keywords.join(", ") : String(editing.keywords ?? "")),
       })
       .eq("id", editing.id);
     setSaving(false);
