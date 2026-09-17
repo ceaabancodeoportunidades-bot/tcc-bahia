@@ -57,17 +57,19 @@ function MinePage() {
   const save = async (resubmit: boolean) => {
     if (!editing) return;
     setSaving(true);
-    const payload: Record<string, unknown> = {
-      title: editing.title,
-      authors: editing.authors,
-      advisor: editing.advisor ?? "",
-      year: Number(editing.year),
-      area: editing.area ?? "",
-      abstract: editing.abstract,
-      keywords: parseKeywords(Array.isArray(editing.keywords) ? editing.keywords.join(", ") : String(editing.keywords ?? "")),
-    };
-    if (resubmit) payload["status"] = "pending";
-    const { error } = await supabase.from("tccs").update(payload).eq("id", editing.id);
+    const { error } = await supabase
+      .from("tccs")
+      .update({
+        title: editing.title,
+        authors: editing.authors,
+        advisor: editing.advisor ?? "",
+        year: Number(editing.year),
+        area: editing.area ?? "",
+        abstract: editing.abstract,
+        keywords: parseKeywords(Array.isArray(editing.keywords) ? editing.keywords.join(", ") : String(editing.keywords ?? "")),
+        ...(resubmit ? { status: "pending" as const } : {}),
+      })
+      .eq("id", editing.id);
     setSaving(false);
     if (error) {
       console.error("mine update error", error);
