@@ -15,8 +15,18 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "daily", priority: "1.0" },
+          { path: "/stats", changefreq: "weekly", priority: "0.5" },
           { path: "/privacy", changefreq: "yearly", priority: "0.3" },
         ];
+
+        try {
+          const ids = await listPublicTccIds();
+          for (const id of ids) {
+            entries.push({ path: `/tcc/${id}`, changefreq: "monthly", priority: "0.7" });
+          }
+        } catch (err) {
+          console.error("sitemap tcc list error", err);
+        }
 
         const urls = entries.map((e) =>
           [
