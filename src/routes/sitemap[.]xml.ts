@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { listPublicTccIds } from "@/lib/tcc.functions";
 
 const BASE_URL = "https://tcc-bahia.lovable.app";
 
