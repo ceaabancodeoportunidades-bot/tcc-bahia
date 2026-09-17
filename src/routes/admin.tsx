@@ -37,6 +37,8 @@ function AdminPage() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<any | null>(null);
   const [saving, setSaving] = useState(false);
+  const [rejecting, setRejecting] = useState<any | null>(null);
+  const [reason, setReason] = useState("");
 
   useEffect(() => {
     if (!loading && (!user || !(isAdmin || isTeacher))) navigate({ to: "/" });
