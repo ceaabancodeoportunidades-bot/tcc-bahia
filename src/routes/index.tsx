@@ -16,6 +16,7 @@ import { StarRating } from "@/components/star-rating";
 import { toast } from "sonner";
 import { norm } from "@/lib/areas";
 import heroImage from "@/assets/hero-banco-tccs.jpg";
+import { getApprovedTccPdfUrl } from "@/lib/tcc-pdf.functions";
 
 const PAGE_SIZE = 12;
 
@@ -200,9 +201,11 @@ function Index() {
   const visible = tab === "all" ? list.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE) : list;
 
   const downloadPdf = async (path: string) => {
-    const { data, error } = await supabase.storage.from("tcc-pdfs").createSignedUrl(path, 60);
-    if (error || !data) return;
-    window.open(data.signedUrl, "_blank");
+    const row = (tccs ?? []).find((t) => t.pdf_path === path);
+    if (!row) return;
+    const res = await getApprovedTccPdfUrl({ data: { id: row.id } }).catch(() => ({ url: null }));
+    if (!res.url) return;
+    window.open(res.url, "_blank");
   };
 
   const exportCsv = () => {

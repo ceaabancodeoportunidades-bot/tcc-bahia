@@ -10,6 +10,7 @@ import { StarRating } from "@/components/star-rating";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { getPublicTcc } from "@/lib/tcc.functions";
+import { getApprovedTccPdfUrl } from "@/lib/tcc-pdf.functions";
 import { toast } from "sonner";
 import { ArrowLeft, Download, Link2, Star } from "lucide-react";
 
@@ -103,11 +104,11 @@ function TccPage() {
     let active = true;
     (async () => {
       if (!tcc?.pdf_path) return;
-      const { data } = await supabase.storage.from("tcc-pdfs").createSignedUrl(tcc.pdf_path, 3600);
-      if (active) setPdfUrl(data?.signedUrl ?? null);
+      const res = await getApprovedTccPdfUrl({ data: { id: tcc.id } }).catch(() => ({ url: null }));
+      if (active) setPdfUrl(res.url ?? null);
     })();
     return () => { active = false; };
-  }, [tcc?.pdf_path]);
+  }, [tcc?.pdf_path, tcc?.id]);
 
   if (!tcc) return <NotFoundState />;
 
