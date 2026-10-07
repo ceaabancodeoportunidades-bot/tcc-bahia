@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Check, X, Trash2, Star, Pencil } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { parseKeywords } from "@/lib/areas";
+import { uploadTccPdf } from "@/lib/pdf";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -37,6 +38,7 @@ function AdminPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [editing, setEditing] = useState<any | null>(null);
+  const [newPdf, setNewPdf] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [rejecting, setRejecting] = useState<any | null>(null);
   const [reason, setReason] = useState("");

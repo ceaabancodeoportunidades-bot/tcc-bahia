@@ -169,6 +169,11 @@ function MinePage() {
                 />
               </div>
               <div><Label>{tr("admin.field.abstract")}</Label><Textarea rows={8} value={editing.abstract} onChange={(e) => setEditing({ ...editing, abstract: e.target.value })} /></div>
+              <div>
+                <Label>{tr("admin.field.pdf")}</Label>
+                {editing.pdf_path && <p className="text-xs text-muted-foreground mb-1">{tr("admin.field.pdfCurrent")}</p>}
+                <Input type="file" accept="application/pdf" onChange={(e) => setNewPdf(e.target.files?.[0] ?? null)} />
+              </div>
             </div>
           )}
           <DialogFooter className="gap-2">
