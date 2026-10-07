@@ -15,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { parseKeywords } from "@/lib/areas";
+import { uploadTccPdf } from "@/lib/pdf";
 import { AlertTriangle, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/mine")({
@@ -36,6 +37,7 @@ function MinePage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [editing, setEditing] = useState<any | null>(null);
+  const [newPdf, setNewPdf] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -56,6 +58,21 @@ function MinePage() {
   const save = async (resubmit: boolean) => {
     if (!editing) return;
     setSaving(true);
+    let pdf_path: string | undefined;
+    if (newPdf) {
+      try {
+        const path = await uploadTccPdf(newPdf, editing.user_id);
+        if (!path) {
+          setSaving(false);
+          return toast.error(tr("submit.invalidPdf"));
+        }
+        pdf_path = path;
+      } catch (err) {
+        console.error("pdf upload error", err);
+        setSaving(false);
+        return toast.error(tr("error.generic"));
+      }
+    }
     const { error } = await supabase
       .from("tccs")
       .update({
@@ -66,6 +83,7 @@ function MinePage() {
         area: editing.area ?? "",
         abstract: editing.abstract,
         keywords: parseKeywords(Array.isArray(editing.keywords) ? editing.keywords.join(", ") : String(editing.keywords ?? "")),
+        ...(pdf_path ? { pdf_path } : {}),
         ...(resubmit ? { status: "pending" as const } : {}),
       })
       .eq("id", editing.id);
