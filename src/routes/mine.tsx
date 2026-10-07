@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
-import { AREAS, parseKeywords } from "@/lib/areas";
+import { parseKeywords } from "@/lib/areas";
 import { AlertTriangle, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/mine")({
@@ -137,11 +137,9 @@ function MinePage() {
                 <div><Label>{tr("admin.field.year")}</Label><Input type="number" value={editing.year} onChange={(e) => setEditing({ ...editing, year: e.target.value })} /></div>
                 <div>
                   <Label>{tr("admin.field.area")}</Label>
-                  <Select value={editing.area ?? ""} onValueChange={(v) => setEditing({ ...editing, area: v })}>
-                    <SelectTrigger><SelectValue placeholder={tr("submit.selectArea")} /></SelectTrigger>
-                    <SelectContent>{AREAS.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
-                  </Select>
+                  <Input value={editing.area ?? ""} onChange={(e) => setEditing({ ...editing, area: e.target.value })} />
                 </div>
+
               </div>
               <div><Label>{tr("admin.field.advisor")}</Label><Input value={editing.advisor ?? ""} onChange={(e) => setEditing({ ...editing, advisor: e.target.value })} /></div>
               <div>
