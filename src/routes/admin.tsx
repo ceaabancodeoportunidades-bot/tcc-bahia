@@ -208,7 +208,7 @@ function AdminPage() {
                     <Button size="sm" variant="destructive" onClick={() => del(t.id)}><Trash2 className="h-4 w-4 mr-1" />{tr("admin.delete")}</Button>
                   )}
                   {isAdmin && (
-                    <Button size="sm" variant="secondary" onClick={() => setEditing({ ...t })}><Pencil className="h-4 w-4 mr-1" />{tr("admin.edit")}</Button>
+                    <Button size="sm" variant="secondary" onClick={() => { setEditing({ ...t }); setNewPdf(null); }}><Pencil className="h-4 w-4 mr-1" />{tr("admin.edit")}</Button>
                   )}
                 </div>
               </CardContent>
@@ -216,7 +216,7 @@ function AdminPage() {
           ))}
         </div>
       </main>
-      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+      <Dialog open={!!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setNewPdf(null); } }}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{tr("admin.editTitle")}</DialogTitle></DialogHeader>
           {editing && (

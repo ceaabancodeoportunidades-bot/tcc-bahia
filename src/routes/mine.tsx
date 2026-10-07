@@ -133,7 +133,7 @@ function MinePage() {
                 {t.status === "approved" ? (
                   <p className="text-xs text-muted-foreground">{tr("mine.locked")}</p>
                 ) : (
-                  <Button size="sm" variant="secondary" onClick={() => setEditing({ ...t })}>
+                  <Button size="sm" variant="secondary" onClick={() => { setEditing({ ...t }); setNewPdf(null); }}>
                     <Pencil className="h-4 w-4 mr-1" />
                     {t.status === "rejected" ? tr("mine.fix") : tr("admin.edit")}
                   </Button>
@@ -144,7 +144,7 @@ function MinePage() {
         </div>
       </main>
 
-      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+      <Dialog open={!!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setNewPdf(null); } }}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{tr("admin.editTitle")}</DialogTitle></DialogHeader>
           {editing && (
