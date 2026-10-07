@@ -112,6 +112,8 @@ const dict = {
   "admin.field.advisor": { pt: "Orientador", en: "Advisor" },
   "admin.field.abstract": { pt: "Resumo", en: "Abstract" },
   "admin.field.keywords": { pt: "Palavras-chave", en: "Keywords" },
+  "admin.field.pdf": { pt: "Trocar PDF (opcional)", en: "Replace PDF (optional)" },
+  "admin.field.pdfCurrent": { pt: "PDF atual anexado", en: "Current PDF attached" },
   "admin.pending": { pt: "pendentes", en: "pending" },
   "admin.newSubmissions": { pt: "Novos TCCs aguardando avaliação", en: "New submissions awaiting review" },
   "admin.rejectReasonTitle": { pt: "Motivo da rejeição", en: "Rejection reason" },
