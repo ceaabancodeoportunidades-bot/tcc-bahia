@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SiteHeader } from "@/components/site-header";
 import { toast } from "sonner";
@@ -149,13 +148,9 @@ function SubmitPage() {
                 <div><Label>{t("submit.fYear")}</Label><Input type="number" min={1990} max={2100} value={year} onChange={(e) => setYear(Number(e.target.value))} required /></div>
                 <div>
                   <Label>{t("submit.fArea")}</Label>
-                  <Select value={area} onValueChange={setArea}>
-                    <SelectTrigger><SelectValue placeholder={t("submit.selectArea")} /></SelectTrigger>
-                    <SelectContent>
-                      {AREAS.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <Input value={area} onChange={(e) => setArea(e.target.value)} placeholder={t("submit.selectArea")} />
                 </div>
+
               </div>
               <div><Label>{t("submit.fAuthors")}</Label><Input value={authors} onChange={(e) => setAuthors(e.target.value)} placeholder={t("submit.fAuthorsPh")} required /></div>
               <div><Label>{t("submit.fAdvisor")}</Label><Input value={advisor} onChange={(e) => setAdvisor(e.target.value)} /></div>
