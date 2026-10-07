@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { SiteHeader } from "@/components/site-header";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
-import { AREAS, parseKeywords, similarity } from "@/lib/areas";
+import { parseKeywords, similarity } from "@/lib/areas";
 import { AlertTriangle } from "lucide-react";
 
 const MAX_PDF_BYTES = 25 * 1024 * 1024; // 25 MB
