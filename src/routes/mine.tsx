@@ -15,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { parseKeywords } from "@/lib/areas";
+import { uploadTccPdf } from "@/lib/pdf";
 import { AlertTriangle, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/mine")({
@@ -36,6 +37,7 @@ function MinePage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [editing, setEditing] = useState<any | null>(null);
+  const [newPdf, setNewPdf] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -56,6 +58,21 @@ function MinePage() {
   const save = async (resubmit: boolean) => {
     if (!editing) return;
     setSaving(true);
+    let pdf_path: string | undefined;
+    if (newPdf) {
+      try {
+        const path = await uploadTccPdf(newPdf, editing.user_id);
+        if (!path) {
+          setSaving(false);
+          return toast.error(tr("submit.invalidPdf"));
+        }
+        pdf_path = path;
+      } catch (err) {
+        console.error("pdf upload error", err);
+        setSaving(false);
+        return toast.error(tr("error.generic"));
+      }
+    }
     const { error } = await supabase
       .from("tccs")
       .update({
@@ -66,6 +83,7 @@ function MinePage() {
         area: editing.area ?? "",
         abstract: editing.abstract,
         keywords: parseKeywords(Array.isArray(editing.keywords) ? editing.keywords.join(", ") : String(editing.keywords ?? "")),
+        ...(pdf_path ? { pdf_path } : {}),
         ...(resubmit ? { status: "pending" as const } : {}),
       })
       .eq("id", editing.id);
@@ -115,7 +133,7 @@ function MinePage() {
                 {t.status === "approved" ? (
                   <p className="text-xs text-muted-foreground">{tr("mine.locked")}</p>
                 ) : (
-                  <Button size="sm" variant="secondary" onClick={() => setEditing({ ...t })}>
+                  <Button size="sm" variant="secondary" onClick={() => { setEditing({ ...t }); setNewPdf(null); }}>
                     <Pencil className="h-4 w-4 mr-1" />
                     {t.status === "rejected" ? tr("mine.fix") : tr("admin.edit")}
                   </Button>
@@ -126,7 +144,7 @@ function MinePage() {
         </div>
       </main>
 
-      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+      <Dialog open={!!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setNewPdf(null); } }}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{tr("admin.editTitle")}</DialogTitle></DialogHeader>
           {editing && (
@@ -151,6 +169,11 @@ function MinePage() {
                 />
               </div>
               <div><Label>{tr("admin.field.abstract")}</Label><Textarea rows={8} value={editing.abstract} onChange={(e) => setEditing({ ...editing, abstract: e.target.value })} /></div>
+              <div>
+                <Label>{tr("admin.field.pdf")}</Label>
+                {editing.pdf_path && <p className="text-xs text-muted-foreground mb-1">{tr("admin.field.pdfCurrent")}</p>}
+                <Input type="file" accept="application/pdf" onChange={(e) => setNewPdf(e.target.files?.[0] ?? null)} />
+              </div>
             </div>
           )}
           <DialogFooter className="gap-2">

@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Check, X, Trash2, Star, Pencil } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { parseKeywords } from "@/lib/areas";
+import { uploadTccPdf } from "@/lib/pdf";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -37,6 +38,7 @@ function AdminPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [editing, setEditing] = useState<any | null>(null);
+  const [newPdf, setNewPdf] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [rejecting, setRejecting] = useState<any | null>(null);
   const [reason, setReason] = useState("");
@@ -111,6 +113,21 @@ function AdminPage() {
   const saveEdit = async () => {
     if (!editing) return;
     setSaving(true);
+    let pdf_path: string | undefined;
+    if (newPdf) {
+      try {
+        const path = await uploadTccPdf(newPdf, editing.user_id);
+        if (!path) {
+          setSaving(false);
+          return toast.error(tr("submit.invalidPdf"));
+        }
+        pdf_path = path;
+      } catch (err) {
+        console.error("pdf upload error", err);
+        setSaving(false);
+        return toast.error(tr("error.generic"));
+      }
+    }
     const { error } = await supabase
       .from("tccs")
       .update({
@@ -121,6 +138,7 @@ function AdminPage() {
         advisor: editing.advisor ?? "",
         abstract: editing.abstract,
         keywords: parseKeywords(Array.isArray(editing.keywords) ? editing.keywords.join(", ") : String(editing.keywords ?? "")),
+        ...(pdf_path ? { pdf_path } : {}),
       })
       .eq("id", editing.id);
     setSaving(false);
@@ -190,7 +208,7 @@ function AdminPage() {
                     <Button size="sm" variant="destructive" onClick={() => del(t.id)}><Trash2 className="h-4 w-4 mr-1" />{tr("admin.delete")}</Button>
                   )}
                   {isAdmin && (
-                    <Button size="sm" variant="secondary" onClick={() => setEditing({ ...t })}><Pencil className="h-4 w-4 mr-1" />{tr("admin.edit")}</Button>
+                    <Button size="sm" variant="secondary" onClick={() => { setEditing({ ...t }); setNewPdf(null); }}><Pencil className="h-4 w-4 mr-1" />{tr("admin.edit")}</Button>
                   )}
                 </div>
               </CardContent>
@@ -198,7 +216,7 @@ function AdminPage() {
           ))}
         </div>
       </main>
-      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+      <Dialog open={!!editing} onOpenChange={(o) => { if (!o) { setEditing(null); setNewPdf(null); } }}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{tr("admin.editTitle")}</DialogTitle></DialogHeader>
           {editing && (
@@ -219,6 +237,11 @@ function AdminPage() {
                 />
               </div>
               <div><Label>{tr("admin.field.abstract")}</Label><Textarea rows={8} value={editing.abstract} onChange={(e) => setEditing({ ...editing, abstract: e.target.value })} /></div>
+              <div>
+                <Label>{tr("admin.field.pdf")}</Label>
+                {editing.pdf_path && <p className="text-xs text-muted-foreground mb-1">{tr("admin.field.pdfCurrent")}</p>}
+                <Input type="file" accept="application/pdf" onChange={(e) => setNewPdf(e.target.files?.[0] ?? null)} />
+              </div>
             </div>
           )}
           <DialogFooter>
