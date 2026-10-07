@@ -122,7 +122,7 @@ const dict = {
   // Keywords / submit extras
   "submit.fKeywords": { pt: "Palavras-chave", en: "Keywords" },
   "submit.fKeywordsPh": { pt: "Separadas por vírgula. Ex.: energia solar, sustentabilidade", en: "Comma separated. e.g. solar energy, sustainability" },
-  "submit.selectArea": { pt: "Selecione a área", en: "Select an area" },
+  "submit.selectArea": { pt: "Ex.: Matemática, Biologia…", en: "e.g. Mathematics, Biology…" },
   "submit.duplicateTitle": { pt: "Possível TCC duplicado", en: "Possible duplicate" },
   "submit.duplicateDesc": { pt: "Encontramos trabalhos parecidos já cadastrados. Confira antes de enviar:", en: "We found similar submissions already registered. Please check before submitting:" },
   "submit.duplicateContinue": { pt: "Enviar mesmo assim", en: "Submit anyway" },
