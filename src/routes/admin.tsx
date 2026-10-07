@@ -113,6 +113,21 @@ function AdminPage() {
   const saveEdit = async () => {
     if (!editing) return;
     setSaving(true);
+    let pdf_path: string | undefined;
+    if (newPdf) {
+      try {
+        const path = await uploadTccPdf(newPdf, editing.user_id);
+        if (!path) {
+          setSaving(false);
+          return toast.error(tr("submit.invalidPdf"));
+        }
+        pdf_path = path;
+      } catch (err) {
+        console.error("pdf upload error", err);
+        setSaving(false);
+        return toast.error(tr("error.generic"));
+      }
+    }
     const { error } = await supabase
       .from("tccs")
       .update({
@@ -123,6 +138,7 @@ function AdminPage() {
         advisor: editing.advisor ?? "",
         abstract: editing.abstract,
         keywords: parseKeywords(Array.isArray(editing.keywords) ? editing.keywords.join(", ") : String(editing.keywords ?? "")),
+        ...(pdf_path ? { pdf_path } : {}),
       })
       .eq("id", editing.id);
     setSaving(false);
@@ -221,6 +237,11 @@ function AdminPage() {
                 />
               </div>
               <div><Label>{tr("admin.field.abstract")}</Label><Textarea rows={8} value={editing.abstract} onChange={(e) => setEditing({ ...editing, abstract: e.target.value })} /></div>
+              <div>
+                <Label>{tr("admin.field.pdf")}</Label>
+                {editing.pdf_path && <p className="text-xs text-muted-foreground mb-1">{tr("admin.field.pdfCurrent")}</p>}
+                <Input type="file" accept="application/pdf" onChange={(e) => setNewPdf(e.target.files?.[0] ?? null)} />
+              </div>
             </div>
           )}
           <DialogFooter>
